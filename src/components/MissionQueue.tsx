@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
-import { Plus, ChevronRight, GripVertical } from 'lucide-react';
+import { signOutAction } from '@/lib/actions';
 import { useMissionControl } from '@/lib/store';
 import type { Task, TaskStatus } from '@/lib/types';
-import { TaskModal } from './TaskModal';
 import { formatDistanceToNow } from 'date-fns';
+import { ChevronRight, GripVertical, LogOut, Plus } from 'lucide-react';
+import { useState } from 'react';
+import { TaskModal } from './TaskModal';
 
 interface MissionQueueProps {
   workspaceId?: string;
@@ -85,13 +86,24 @@ export function MissionQueue({ workspaceId }: MissionQueueProps) {
           <ChevronRight className="w-4 h-4 text-mc-text-secondary" />
           <span className="text-sm font-medium uppercase tracking-wider">Mission Queue</span>
         </div>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-2 px-3 py-1.5 bg-mc-accent-pink text-mc-bg rounded text-sm font-medium hover:bg-mc-accent-pink/90"
-        >
-          <Plus className="w-4 h-4" />
-          New Task
-        </button>
+        <div className="flex gap-2">
+            <form action={signOutAction}>
+              <button
+                type="submit"
+                className="flex items-center gap-2 px-3 py-1.5 bg-gray-700 text-white rounded text-sm font-medium hover:bg-gray-600"
+              >
+                <LogOut className="w-4 h-4" />
+                Sign Out
+              </button>
+            </form>
+            <button
+            onClick={() => setShowCreateModal(true)}
+            className="flex items-center gap-2 px-3 py-1.5 bg-mc-accent-pink text-mc-bg rounded text-sm font-medium hover:bg-mc-accent-pink/90"
+            >
+            <Plus className="w-4 h-4" />
+            New Task
+            </button>
+        </div>
       </div>
 
       {/* Kanban Columns */}

@@ -1,8 +1,8 @@
 import Database from 'better-sqlite3';
-import path from 'path';
 import fs from 'fs';
-import { schema } from './schema';
+import path from 'path';
 import { runMigrations } from './migrations';
+import { schema } from './schema';
 
 const DB_PATH = process.env.DATABASE_PATH || path.join(process.cwd(), 'mission-control.db');
 
@@ -59,4 +59,5 @@ export function transaction<T>(fn: () => T): T {
 }
 
 // Export migration utilities for CLI use
-export { runMigrations, getMigrationStatus } from './migrations';
+export { getMigrationStatus, runMigrations } from './migrations';
+

@@ -1,7 +1,8 @@
 // Database seed script - creates initial data including Charlie (master agent)
 
+import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
-import { getDb, closeDb } from './index';
+import { closeDb, getDb } from './index';
 
 const CHARLIE_SOUL_MD = `# Charlie - Mission Control Orchestrator
 
@@ -203,6 +204,25 @@ async function seed() {
     'text',
     now
   );
+
+  // Create default admin user
+  const adminUsername = process.env.ADMIN_USERNAME || 'admin';
+  const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+  
+  const existingUser = db.prepare('SELECT id FROM users WHERE username = ?').get(adminUsername);
+  
+  if (!existingUser) {
+    const adminId = uuidv4();
+    const hashedPassword = await bcrypt.hash(adminPassword, 10);
+    
+    db.prepare(
+      `INSERT INTO users (id, username, password, created_at) VALUES (?, ?, ?, ?)`
+    ).run(adminId, adminUsername, hashedPassword, now);
+    
+    console.log(`✅ Created default admin user: ${adminUsername}`);
+  } else {
+    console.log(`ℹ️ User ${adminUsername} already exists`);
+  }
 
   console.log('✅ Database seeded successfully!');
   console.log(`   - Created Charlie (master agent): ${charlieId}`);

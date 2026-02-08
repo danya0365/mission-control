@@ -38,6 +38,14 @@ CREATE TABLE IF NOT EXISTS agents (
   updated_at TEXT DEFAULT (datetime('now'))
 );
 
+-- Users table
+CREATE TABLE IF NOT EXISTS users (
+  id TEXT PRIMARY KEY,
+  username TEXT UNIQUE NOT NULL,
+  password TEXT NOT NULL,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
 -- Tasks table (Mission Queue)
 CREATE TABLE IF NOT EXISTS tasks (
   id TEXT PRIMARY KEY,
