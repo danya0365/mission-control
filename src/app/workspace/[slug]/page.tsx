@@ -1,18 +1,18 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
-import Link from 'next/link';
-import { ChevronLeft } from 'lucide-react';
-import { Header } from '@/components/Header';
 import { AgentsSidebar } from '@/components/AgentsSidebar';
-import { MissionQueue } from '@/components/MissionQueue';
+import { Header } from '@/components/Header';
 import { LiveFeed } from '@/components/LiveFeed';
+import { MissionQueue } from '@/components/MissionQueue';
 import { SSEDebugPanel } from '@/components/SSEDebugPanel';
-import { useMissionControl } from '@/lib/store';
 import { useSSE } from '@/hooks/useSSE';
 import { debug } from '@/lib/debug';
+import { useMissionControl } from '@/lib/store';
 import type { Task, Workspace } from '@/lib/types';
+import { ChevronLeft } from 'lucide-react';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function WorkspacePage() {
   const params = useParams();
@@ -200,16 +200,20 @@ export default function WorkspacePage() {
   return (
     <div className="h-screen flex flex-col bg-mc-bg overflow-hidden">
       <Header workspace={workspace} />
-
-      <div className="flex-1 flex overflow-hidden">
-        {/* Agents Sidebar */}
-        <AgentsSidebar workspaceId={workspace.id} />
+      
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative">
+        {/* Agents Sidebar - Collapsible on mobile */}
+        <div className="md:flex md:flex-col h-auto md:h-full shrink-0">
+          <AgentsSidebar workspaceId={workspace.id} />
+        </div>
 
         {/* Main Content Area */}
         <MissionQueue workspaceId={workspace.id} />
 
-        {/* Live Feed */}
-        <LiveFeed />
+        {/* Live Feed - Hidden on mobile, visible on lg screens */}
+        <div className="hidden lg:flex lg:flex-col h-full shrink-0">
+          <LiveFeed />
+        </div>
       </div>
 
       {/* Debug Panel - only shows when debug mode enabled */}

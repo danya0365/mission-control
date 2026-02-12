@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { Zap, Settings, ChevronLeft, LayoutGrid } from 'lucide-react';
 import { useMissionControl } from '@/lib/store';
-import { format } from 'date-fns';
 import type { Workspace } from '@/lib/types';
+import { format } from 'date-fns';
+import { ChevronLeft, LayoutGrid, Settings, Zap } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 interface HeaderProps {
   workspace?: Workspace;
@@ -88,7 +88,7 @@ export function Header({ workspace }: HeaderProps) {
 
       {/* Center: Stats - only show in workspace view */}
       {workspace && (
-        <div className="flex items-center gap-8">
+        <div className="hidden md:flex items-center gap-8">
           <div className="text-center">
             <div className="text-2xl font-bold text-mc-accent-cyan">{activeAgents}</div>
             <div className="text-xs text-mc-text-secondary uppercase">Agents Active</div>

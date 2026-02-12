@@ -27,9 +27,13 @@ export function MissionQueue({ workspaceId }: MissionQueueProps) {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [draggedTask, setDraggedTask] = useState<Task | null>(null);
+  const [activeTab, setActiveTab] = useState<TaskStatus>(COLUMNS[0].id);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const getTasksByStatus = (status: TaskStatus) =>
     tasks.filter((task) => task.status === status);
+  
+  const activeColumn = COLUMNS.find(c => c.id === activeTab) || COLUMNS[0];
 
   const handleDragStart = (e: React.DragEvent, task: Task) => {
     setDraggedTask(task);
@@ -106,14 +110,114 @@ export function MissionQueue({ workspaceId }: MissionQueueProps) {
         </div>
       </div>
 
-      {/* Kanban Columns */}
-      <div className="flex-1 flex gap-3 p-3 overflow-x-auto">
+      {/* Mobile Dropdown (visible on < md) */}
+      <div className="md:hidden relative border-b border-mc-border bg-mc-bg-secondary/50">
+        {/* Dropdown Trigger */}
+        <button
+          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          className="w-full flex items-center justify-between px-4 py-3 text-left"
+        >
+          <div className="flex items-center gap-3">
+            <span className={`text-sm font-medium ${activeColumn.color.replace('border-t-', 'text-')}`}>
+              {activeColumn.label}
+            </span>
+            <span className="bg-mc-bg-tertiary px-2 py-0.5 rounded-full text-xs text-mc-text-secondary">
+              {getTasksByStatus(activeColumn.id).length}
+            </span>
+          </div>
+          <ChevronRight 
+            className={`w-5 h-5 text-mc-text-secondary transition-transform duration-200 ${
+              isDropdownOpen ? 'rotate-90' : ''
+            }`} 
+          />
+        </button>
+
+        {/* Dropdown Menu */}
+        {isDropdownOpen && (
+          <>
+            {/* Backdrop */}
+            <div 
+              className="fixed inset-0 z-10" 
+              onClick={() => setIsDropdownOpen(false)}
+            />
+            
+            {/* Menu */}
+            <div className="absolute top-full left-0 right-0 z-20 bg-mc-bg border-b border-mc-border shadow-xl shadow-black/30">
+              {COLUMNS.map((column) => {
+                const count = getTasksByStatus(column.id).length;
+                const isActive = activeTab === column.id;
+                
+                return (
+                  <button
+                    key={column.id}
+                    onClick={() => {
+                      setActiveTab(column.id);
+                      setIsDropdownOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-4 py-3 text-left transition-colors ${
+                      isActive 
+                        ? 'bg-mc-accent/10' 
+                        : 'hover:bg-mc-bg-tertiary'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-2 h-2 rounded-full ${column.color.replace('border-t-', 'bg-')}`} />
+                      <span className={`text-sm font-medium ${
+                        isActive ? 'text-mc-text' : 'text-mc-text-secondary'
+                      }`}>
+                        {column.label}
+                      </span>
+                    </div>
+                    <span className={`px-2 py-0.5 rounded-full text-xs ${
+                      count > 0 
+                        ? 'bg-mc-accent/20 text-mc-accent' 
+                        : 'bg-mc-bg-tertiary text-mc-text-secondary'
+                    }`}>
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Mobile Task List (visible on < md) */}
+      <div className="md:hidden flex-1 overflow-y-auto p-3 bg-mc-bg">
+        {(() => {
+          const columnTasks = getTasksByStatus(activeColumn.id);
+          
+          return (
+            <div className="space-y-3">
+              {columnTasks.length === 0 ? (
+                <div className="text-center py-8 text-mc-text-secondary/50 text-sm">
+                  No tasks in {activeColumn.label}
+                </div>
+              ) : (
+                columnTasks.map((task) => (
+                  <TaskCard
+                    key={task.id}
+                    task={task}
+                    onDragStart={handleDragStart}
+                    onClick={() => setEditingTask(task)}
+                    isDragging={draggedTask?.id === task.id}
+                  />
+                ))
+              )}
+            </div>
+          );
+        })()}
+      </div>
+
+      {/* Desktop Kanban Columns (visible on >= md) */}
+      <div className="hidden md:flex flex-1 gap-3 p-3 overflow-x-auto overflow-y-hidden snap-x snap-mandatory">
         {COLUMNS.map((column) => {
           const columnTasks = getTasksByStatus(column.id);
           return (
             <div
               key={column.id}
-              className={`flex-1 min-w-[220px] max-w-[300px] flex flex-col bg-mc-bg rounded-lg border border-mc-border/50 border-t-2 ${column.color}`}
+              className={`flex-1 min-w-[280px] max-w-[320px] flex flex-col bg-mc-bg rounded-lg border border-mc-border/50 border-t-2 ${column.color} snap-start snap-always h-full`}
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, column.id)}
             >
